@@ -36,7 +36,7 @@ class QuizActivity : ComponentActivity() {
                 colorScheme = AppTheme,
                 typography = AppTypography
             ) {
-                QuizScreen(quizId)
+                QuizUI.QuizScreen(quizId = 1)
             }
         }
     }
@@ -93,10 +93,10 @@ fun QuizScreen(quizId: Int) {
 private val AppTheme = lightColorScheme(
     primary = Color(0xFF6200EE),
     secondary = Color(0xFF03DAC6),
-    // Définissez d'autres couleurs du thème ici si nécessaire
+
 )
 private val AppTypography = Typography(
-    // Spécifiez ici les styles de typographie que vous souhaitez utiliser dans l'application
+
     headlineMedium = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 20.sp,

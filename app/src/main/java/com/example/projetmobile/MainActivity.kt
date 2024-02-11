@@ -12,9 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,6 +50,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun QuizApp() {
+    // Utilisez directement la propriété MutableState sans la délégation 'by'
+    val showQuizButtons = remember { mutableStateOf(listOf(true, true, true)) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,13 +68,23 @@ fun QuizApp() {
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
-        QuizButton("Quiz 1", 1)
-        Spacer(modifier = Modifier.height(18.dp))
-        QuizButton("Quiz 2", 2)
-        Spacer(modifier = Modifier.height(18.dp)) // Espacer les boutons
-        QuizButton("Quiz 3", 3)
-    }
 
+        showQuizButtons.value.forEachIndexed { index, isVisible ->
+            if (isVisible) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    QuizButton("Quiz ${index + 1}", index + 1)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+                        // Accédez à la propriété value pour la mutation
+                        showQuizButtons.value = showQuizButtons.value.toMutableList().also { it[index] = false }
+                    }) {
+                        Text("Supprimer")
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
 }
 
 @Composable

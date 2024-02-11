@@ -1,6 +1,8 @@
 package com.example.projetmobile
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -8,7 +10,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 data class Question(
     val questionText: String,
@@ -31,43 +36,50 @@ fun getQuizQuestions(quizId: Int): List<Question> {
     )
 }
 @Composable
-fun QuizScreenQuestions(quizId: Int) {
-    val questions = getQuizQuestions(quizId)
-    // Implémentation...
-}
+fun QuizQuestionScreen(question: Question, onFinishQuiz: () -> Unit) {
+    var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
 
-object QuizUI{
-    @Composable
-    fun QuizScreen(quizId: Int) {
-        val questions = getQuizQuestions(quizId)
-        // Pour simplifier, affichez uniquement la première question
-        val question = questions.firstOrNull()
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(question.questionText, modifier = Modifier.padding(bottom = 8.dp))
 
-        Column {
-            if (question != null) {
-                Text(question.questionText)
-                OptionsList(question)
-            }
-        }
-    }
-}
-
-@Composable
-fun OptionsList(question: Question) {
-    var selectedOptionIndex by remember { mutableStateOf(-1) }
-    Column {
         question.options.forEachIndexed { index, option ->
-            Button(onClick = {
-                selectedOptionIndex = index
-            }) {
+            Button(
+                onClick = { selectedOptionIndex = index },
+                modifier = Modifier.padding(vertical = 4.dp)
+            ) {
                 Text(option)
             }
         }
-        if (selectedOptionIndex >= 0) {
-            Text(if (selectedOptionIndex == question.correctAnswerIndex) "Bonne réponse!" else "Mauvaise réponse!")
+
+        selectedOptionIndex?.let {
+            val feedbackText = if (it == question.correctAnswerIndex) "Correct !" else "Incorrect. La bonne réponse est ${question.options[question.correctAnswerIndex]}."
+            Text(feedbackText, modifier = Modifier.padding(top = 8.dp))
+        }
+
+        Button(onClick = onFinishQuiz, modifier = Modifier.padding(top = 8.dp)) {
+            Text("Suivant")
         }
     }
 }
+
+
+object QuizUI {
+    @Composable
+    fun QuizScreen(quizId: Int) {
+        val questions = getQuizQuestions(quizId)
+        var currentQuestionIndex by remember { mutableStateOf(0) }
+        val context = LocalContext.current
+
+        QuizQuestionScreen(question = questions[currentQuestionIndex], onFinishQuiz = {
+            if (currentQuestionIndex < questions.size - 1) {
+                currentQuestionIndex++
+            } else {
+                (context as? Activity)?.finish() // Termine l'activité et retourne à l'accueil
+            }
+        })
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
